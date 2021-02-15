@@ -30,5 +30,24 @@ dishRouter.route('/')
     res.end('Deleting all the dishes!');
 });
 
+///// DishID
+dishRouter.route('/:dishId')
+.get((req,res,next)=>{
+    res.end('Will send the details of the dishe: ' + req.params.dishId + 'to you');
+})
+.post((req,res,next)=>{
+    res.statusCode = 403;
+    res.end('POST not supported  on /dishes/' + req.params.dishId);
+})
+.put((req,res,next)=>{
+// El status code es para determinar que la operacion no es validas
+    res.write('Updating the dish: ' + req.params.dishId + '\n');
+    res.end('will uptade the dish: ' + req.body.name + 'with the details: ' + req.body.description);
+})
+// Tenemos que tener cuidado porque aqui se borra toda la informacion del lado del servidor
+.delete((req,res,next)=>{
+    res.end('Deleting the dish! ' + req.params.dishId);
+});
+
 
 module.exports = dishRouter; 
