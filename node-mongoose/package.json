@@ -1,0 +1,15 @@
+{
+  "name": "node-mongoose",
+  "version": "1.0.0",
+  "description": "Use of Mongoose",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index"
+  },
+  "author": "Masharelli",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^5.11.19"
+  }
+}
