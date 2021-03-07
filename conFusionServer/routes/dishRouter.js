@@ -1,53 +1,80 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+const Dishes = require('../models/dishes');
 
 const dishRouter = express.Router();
 
-dishRouter.use(express.json());
+dishRouter.use(bodyParser.json());
 
 dishRouter.route('/')
-.all((req,res,next)=>{
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    next();
-})
-
 .get((req,res,next) => {
-    res.end('Will send all the dishes to you!');
+    Dishes.find({})
+    .then((dishes) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(dishes);
+    }, (err) => next(err))
+    .catch((err) => next(err));
 })
-
-.post((req,res,next)=>{
-    res.end('Will add the dish: ' + req.body.name + ' with the details: ' + req.body.description)
+.post((req, res, next) => {
+    Dishes.create(req.body)
+    .then((dish) => {
+        console.log('Dish Created ', dish);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(dish);
+    }, (err) => next(err))
+    .catch((err) => next(err));
 })
-
-.put((req,res,next)=>{
-    // El status code es para determinar que la operacion no es validas
+.put((req, res, next) => {
     res.statusCode = 403;
-    res.end('PUT not supported  on /dishes');
+    res.end('PUT operation not supported on /dishes');
 })
-
-// Tenemos que tener cuidado porque aqui se borra toda la informacion del lado del servidor
-.delete((req,res,next)=>{
-    res.end('Deleting all the dishes!');
+.delete((req, res, next) => {
+    Dishes.remove({})
+    .then((resp) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(resp);
+    }, (err) => next(err))
+    .catch((err) => next(err));    
 });
 
-///// DishID
 dishRouter.route('/:dishId')
-.get((req,res,next)=>{
-    res.end('Will send the details of the dishe: ' + req.params.dishId + 'to you');
+.get((req,res,next) => {
+    Dishes.findById(req.params.dishId)
+    .then((dish) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(dish);
+    }, (err) => next(err))
+    .catch((err) => next(err));
 })
-.post((req,res,next)=>{
+.post((req, res, next) => {
     res.statusCode = 403;
-    res.end('POST not supported  on /dishes/' + req.params.dishId);
+    res.end('POST operation not supported on /dishes/'+ req.params.dishId);
 })
-.put((req,res,next)=>{
-// El status code es para determinar que la operacion no es validas
-    res.write('Updating the dish: ' + req.params.dishId + '\n');
-    res.end('will uptade the dish: ' + req.body.name + 'with the details: ' + req.body.description);
+.put((req, res, next) => {
+    Dishes.findByIdAndUpdate(req.params.dishId, {
+        $set: req.body
+    }, { new: true })
+    .then((dish) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(dish);
+    }, (err) => next(err))
+    .catch((err) => next(err));
 })
-// Tenemos que tener cuidado porque aqui se borra toda la informacion del lado del servidor
-.delete((req,res,next)=>{
-    res.end('Deleting the dish! ' + req.params.dishId);
+.delete((req, res, next) => {
+    Dishes.findByIdAndRemove(req.params.dishId)
+    .then((resp) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(resp);
+    }, (err) => next(err))
+    .catch((err) => next(err));
 });
 
-
-module.exports = dishRouter; 
+module.exports = dishRouter;
