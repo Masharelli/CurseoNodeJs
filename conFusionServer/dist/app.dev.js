@@ -14,6 +14,10 @@ var session = require('express-session');
 
 var FileStore = require('session-file-store')(session);
 
+var passport = require('passport');
+
+var authenticate = require('./authenticate');
+
 var indexRouter = require('./routes/index');
 
 var usersRouter = require('./routes/users');
@@ -50,26 +54,22 @@ app.use(session({
   secret: '12345-67890-09876-54321',
   resave: false,
   store: new FileStore()
-})); //Los ponemos antes de authenticar para poder authenticarlos
+}));
+app.use(passport.initialize());
+app.use(passport.session()); //Los ponemos antes de authenticar para poder authenticarlos
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 function auth(req, res, next) {
-  console.log(req.session);
+  console.log(req.user);
 
-  if (!req.session.user) {
+  if (!req.user) {
     var err = new Error('You are not authenticated!');
     err.status = 403;
-    return next(err);
+    next(err);
   } else {
-    if (req.session.user === 'authenticated') {
-      next();
-    } else {
-      var err = new Error('You are not authenticated!');
-      err.status = 403;
-      return next(err);
-    }
+    next();
   }
 } // Agregamos la authetication
 
